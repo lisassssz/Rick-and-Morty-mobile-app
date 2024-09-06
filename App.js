@@ -1,5 +1,4 @@
-import axios from "axios";
-
+import { MultipleSelectList } from "react-native-dropdown-select-list";
 import {
   StyleSheet,
   SafeAreaView,
@@ -15,25 +14,45 @@ import {
 
 import CharacterCard from "./components/CharacterCard";
 import { useEffect, useState } from "react";
+import { fetchChatacters } from "./src/service/fetchCharacters";
 
 export default function HomeScreen() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExtraLoading, setIsExtraLoading] = useState(false);
+  const [items, setItems] = useState([]);
 
-  const fetchChatacters = () => {
-    setIsLoading(true);
-    axios
-      .get("https://rickandmortyapi.com/api/character")
-      .then(({ data }) => {
-        setItems(data.results);
-      })
-      .catch((err) => {
-        console.log(err);
-        Alert.alert("Ошибка", "Не удалось получить персонажей");
-      })
-      .finally(() => setIsLoading(false));
+  const [currentPage, setCurrentPage] = useState(1);
+
+  //для фильтров
+  const [selected, setSelected] = useState([]);
+
+  const data = [
+    { key: "1", value: "Alive" },
+    { key: "2", value: "Dead" },
+    { key: "3", value: "Unknown" },
+    { key: "4", value: "Human" },
+    { key: "5", value: "Alien" },
+  ];
+
+  useEffect(() => {
+    const initialFunction = async () => {
+      setIsExtraLoading(true);
+      let items = await fetchChatacters(currentPage);
+      setItems(items);
+      setIsExtraLoading(false);
+    };
+    initialFunction();
+  }, []);
+
+  const fetchMore = async () => {
+    if (isExtraLoading) return;
+    setIsExtraLoading(true);
+    const nextPage = currentPage + 1;
+    let charactersList = await fetchChatacters(nextPage);
+    setItems([...items, ...charactersList]);
+    setCurrentPage(nextPage);
+    setIsExtraLoading(false);
   };
-  useEffect(fetchChatacters, []);
 
   if (isLoading) {
     return (
@@ -46,11 +65,19 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <MultipleSelectList
+        setSelected={(val) => setSelected(val)}
+        data={data}
+        save="value"
+        // onSelect={() => alert(selected)}
+        label="Filters"
+      />
       <FlatList
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={fetchChatacters} />
         }
         data={items}
+        keyExtractor={(item) => Math.random().toString(36).substring(2)}
         renderItem={({ item }) => (
           <TouchableOpacity>
             <CharacterCard
@@ -63,6 +90,13 @@ export default function HomeScreen() {
             />
           </TouchableOpacity>
         )}
+        onEndReached={fetchMore}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={() =>
+          isExtraLoading ? (
+            <ActivityIndicator size="large" style={{ marginBottom: 15 }} />
+          ) : null
+        }
       />
     </SafeAreaView>
   );
