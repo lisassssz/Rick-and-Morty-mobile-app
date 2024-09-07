@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   textBlock: {
     width: "60%",
     paddingHorizontal: 12,
-    paddingVertical: 9,
+    paddingVertical: 10,
     gap: 8,
   },
   mainText: {
