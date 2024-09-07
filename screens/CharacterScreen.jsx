@@ -98,8 +98,8 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   image: {
-    width: 250,
-    height: 250,
+    width: 220,
+    height: 220,
     borderRadius: 16,
   },
   name: {

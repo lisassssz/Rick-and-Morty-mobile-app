@@ -1,17 +1,41 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "./screens/HomeScreen";
-import CharacterScreen from "./screens/CharacterScreen";
+import SettingsScreen from "./screens/SettingsScreen";
+import Feather from "@expo/vector-icons/Feather";
+import { AboutStack } from "./AppStack";
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Character" component={CharacterScreen} />
-      </Stack.Navigator>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: "white",
+          tabBarStyle: { backgroundColor: "#2e2e2e" },
+        }}
+      >
+        <Tab.Screen
+          name="Characters"
+          component={AboutStack}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <Feather name="list" size={24} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            tabBarIcon: ({ color }) => (
+              <Feather name="settings" size={24} color={color} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
