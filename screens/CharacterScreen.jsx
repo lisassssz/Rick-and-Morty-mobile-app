@@ -2,13 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Alert, Text, View, StyleSheet, Image, Platform } from "react-native";
 import { Loading } from "../components/Loading";
+import { useTheme } from "@react-navigation/native";
 
 export default function CharacterScreen({ route, navigation }) {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState();
   const [firstEpisodeName, setFirstEpisodeName] = useState("");
   const { id, title } = route.params;
-
+  const { colors } = useTheme();
   useEffect(() => {
     navigation.setOptions({
       title,
@@ -41,7 +42,7 @@ export default function CharacterScreen({ route, navigation }) {
     <View style={styles.container}>
       <Image source={{ uri: `${data.image}` }} style={styles.image} />
       <View style={styles.textPair}>
-        <Text style={styles.name}>{data.name}</Text>
+        <Text style={[{ color: colors.text }, styles.name]}>{data.name}</Text>
         <View style={styles.characteristic}>
           <View
             style={[
@@ -53,7 +54,9 @@ export default function CharacterScreen({ route, navigation }) {
               styles.circle,
             ]}
           ></View>
-          <Text style={[styles.mainText, styles.status]}>
+          <Text
+            style={[{ color: colors.text }, styles.mainText, styles.status]}
+          >
             {data.status} - {data.species}
           </Text>
         </View>
@@ -61,29 +64,40 @@ export default function CharacterScreen({ route, navigation }) {
       <View style={styles.textPair}>
         <Text style={styles.extraText}>
           Type:{" "}
-          <Text style={styles.mainText}>
+          <Text style={[{ color: colors.text }, styles.mainText]}>
             {data.type || <Text>Without type</Text>}
           </Text>
         </Text>
         <Text style={styles.extraText}>
-          Gender: <Text style={styles.mainText}>{data.gender}</Text>
+          Gender:{" "}
+          <Text style={[{ color: colors.text }, styles.mainText]}>
+            {data.gender}
+          </Text>
         </Text>
       </View>
       <View style={styles.textPair}>
         <Text style={styles.extraText}>From:</Text>
-        <Text style={styles.mainText}>{data.origin.name}</Text>
+        <Text style={[{ color: colors.text }, styles.mainText]}>
+          {data.origin.name}
+        </Text>
       </View>
       <View style={styles.textPair}>
         <Text style={styles.extraText}>Last known location:</Text>
-        <Text style={styles.mainText}>{data.location.name}</Text>
+        <Text style={[{ color: colors.text }, styles.mainText]}>
+          {data.location.name}
+        </Text>
       </View>
       <View style={styles.textPair}>
         <Text style={styles.extraText}>First seen in:</Text>
-        <Text style={styles.mainText}>{firstEpisodeName}</Text>
+        <Text style={[{ color: colors.text }, styles.mainText]}>
+          {firstEpisodeName}
+        </Text>
       </View>
       <View style={styles.textPair}>
         <Text style={styles.extraText}>Created at:</Text>
-        <Text style={styles.mainText}>{data.created}</Text>
+        <Text style={[{ color: colors.text }, styles.mainText]}>
+          {data.created}
+        </Text>
       </View>
     </View>
   );
@@ -92,7 +106,6 @@ export default function CharacterScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2e2e2e",
     paddingTop: Platform.OS === "android" ? 25 : 0,
     padding: 20,
     gap: 15,
@@ -103,7 +116,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   name: {
-    color: "white",
     fontSize: 30,
   },
   circle: {
@@ -126,7 +138,6 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   mainText: {
-    color: "#ffffff",
     fontSize: 18,
   },
   extraText: {

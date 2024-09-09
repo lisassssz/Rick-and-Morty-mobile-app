@@ -16,6 +16,7 @@ import CharacterCard from "../components/CharacterCard";
 import { useEffect, useState } from "react";
 import { fetchChatacters } from "../src/service/fetchCharacters";
 import { Loading } from "../components/Loading";
+import { useTheme } from "@react-navigation/native";
 
 export default function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +25,7 @@ export default function HomeScreen({ navigation }) {
   const [filteredItems, setFilteredItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMorePages, setHasMorePages] = useState(true); // для отслеживания страниц
-
+  const { colors } = useTheme();
   //для фильтров
   const [selected, setSelected] = useState([]);
 
@@ -88,8 +89,8 @@ export default function HomeScreen({ navigation }) {
         data={data}
         save="value"
         label="Filters"
-        inputStyles={{ color: "white" }}
-        dropdownTextStyles={{ color: "white" }}
+        inputStyles={{ color: colors.text }}
+        dropdownTextStyles={{ color: colors.text }}
       />
       <FlatList
         refreshControl={
@@ -124,7 +125,9 @@ export default function HomeScreen({ navigation }) {
           ) : null
         }
         ListEmptyComponent={() => (
-          <Text style={styles.empty}>There are no such characters</Text>
+          <Text style={[{ color: colors.text }, styles.empty]}>
+            There are no such characters
+          </Text>
         )}
       />
     </SafeAreaView>
@@ -134,11 +137,9 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2e2e2e",
     paddingTop: Platform.OS === "android" ? 25 : 0,
   },
   empty: {
-    color: "white",
     fontSize: 16,
     marginLeft: 16,
   },

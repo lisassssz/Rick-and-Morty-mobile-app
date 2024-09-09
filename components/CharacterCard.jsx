@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Platform, Image } from "react-native";
-
+import { useTheme } from "@react-navigation/native";
 export default function CharacterCard({
   name,
   status,
@@ -8,12 +8,13 @@ export default function CharacterCard({
   image,
   episode,
 }) {
+  const { colors } = useTheme();
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card }]}>
       <Image source={{ uri: `${image}` }} style={styles.image} />
       <View style={styles.textBlock}>
         <View>
-          <Text style={[styles.mainText, styles.name]}>{name}</Text>
+          <Text style={[{ color: colors.text }, styles.name]}>{name}</Text>
           <View style={styles.characteristic}>
             <View
               style={[
@@ -25,18 +26,18 @@ export default function CharacterCard({
                 styles.circle,
               ]}
             ></View>
-            <Text style={[styles.mainText, styles.status]}>
+            <Text style={[{ color: colors.text }, styles.status]}>
               {status} - {species}
             </Text>
           </View>
         </View>
         <View>
           <Text style={styles.extraText}>Last known location:</Text>
-          <Text style={styles.mainText}>{location}</Text>
+          <Text style={{ color: colors.text }}>{location}</Text>
         </View>
         <View>
           <Text style={styles.extraText}>First seen in:</Text>
-          <Text style={styles.mainText}>{episode}</Text>
+          <Text style={{ color: colors.text }}>{episode}</Text>
         </View>
       </View>
     </View>
@@ -46,7 +47,6 @@ export default function CharacterCard({
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    backgroundColor: "#424242",
     borderRadius: 16,
     margin: 16,
     ...Platform.select({
@@ -71,9 +71,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     gap: 8,
-  },
-  mainText: {
-    color: "#ffffff",
   },
   extraText: {
     color: "#9e9e9e",

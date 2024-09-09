@@ -1,10 +1,15 @@
 import { Text, View, ActivityIndicator, StyleSheet } from "react-native";
+import { useTheme } from "@react-navigation/native";
 
 export const Loading = () => {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.loader}>
       <ActivityIndicator size="large" />
-      <Text style={styles.loaderText}>Загрузка...</Text>
+      <Text style={[{ color: colors.text }, styles.loaderText]}>
+        Загрузка...
+      </Text>
     </View>
   );
 };
@@ -12,12 +17,10 @@ export const Loading = () => {
 const styles = StyleSheet.create({
   loader: {
     flex: 1,
-    backgroundColor: "#2e2e2e",
     justifyContent: "center",
     alignItems: "center",
   },
   loaderText: {
     marginTop: 15,
-    color: "white",
   },
 });
