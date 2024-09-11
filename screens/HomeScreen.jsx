@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { fetchChatacters } from "../src/service/fetchCharacters";
 import { Loading } from "../components/Loading";
 import { useTheme } from "@react-navigation/native";
+import { useWindowDimensions } from "react-native";
 
 export default function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -26,8 +27,15 @@ export default function HomeScreen({ navigation }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMorePages, setHasMorePages] = useState(true); // для отслеживания страниц
   const { colors } = useTheme();
+  const windowWidth = useWindowDimensions().width;
+
   //для фильтров
   const [selected, setSelected] = useState([]);
+
+  // адаптивные размеры
+  const isSmallScreen = windowWidth < 768;
+  const marginHorizontal = isSmallScreen ? 16 : 60;
+  const fontSize = isSmallScreen ? 16 : 22;
 
   const data = [
     { key: "1", value: "Alive" },
@@ -39,12 +47,10 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     const initialFunction = async () => {
-      // setIsExtraLoading(true);
       setIsLoading(true);
       let items = await fetchChatacters(currentPage);
       setItems(items);
       setHasMorePages(items.length > 0); // обновляем статус наличия страниц
-      // setIsExtraLoading(false);
       setIsLoading(false);
     };
     initialFunction();
@@ -84,14 +90,17 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MultipleSelectList
-        setSelected={(val) => setSelected(val)}
-        data={data}
-        save="value"
-        label="Filters"
-        inputStyles={{ color: colors.text }}
-        dropdownTextStyles={{ color: colors.text }}
-      />
+      <View style={{ marginHorizontal: marginHorizontal }}>
+        <MultipleSelectList
+          setSelected={(val) => setSelected(val)}
+          data={data}
+          save="value"
+          label="Filters"
+          inputStyles={{ color: colors.text, fontSize: fontSize }}
+          dropdownTextStyles={{ color: colors.text, fontSize: fontSize }}
+          styleTextTag={{ fontSize: 22 }}
+        />
+      </View>
       <FlatList
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={fetchChatacters} />
@@ -125,7 +134,13 @@ export default function HomeScreen({ navigation }) {
           ) : null
         }
         ListEmptyComponent={() => (
-          <Text style={[{ color: colors.text }, styles.empty]}>
+          <Text
+            style={{
+              color: colors.text,
+              marginHorizontal: marginHorizontal,
+              fontSize: fontSize,
+            }}
+          >
             There are no such characters
           </Text>
         )}
@@ -138,9 +153,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: Platform.OS === "android" ? 25 : 0,
-  },
-  empty: {
-    fontSize: 16,
-    marginLeft: 16,
   },
 });

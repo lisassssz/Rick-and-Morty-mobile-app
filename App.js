@@ -1,6 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import Feather from "@expo/vector-icons/Feather";
 import { AboutStack } from "./AppStack";
@@ -15,6 +14,7 @@ import { Provider, useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setTheme } from "./features/theme/themeSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useWindowDimensions } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -24,6 +24,12 @@ function AppContent() {
   const { colors } = useTheme();
   const isDarkTheme = useSelector((state) => state.theme.isDarkTheme);
   const dispatch = useDispatch();
+  const windowWidth = useWindowDimensions().width;
+
+  // адаптивные размеры
+  const isSmallScreen = windowWidth < 768;
+  const labelSize = isSmallScreen ? 12 : 16;
+
   const handleRetry = () => {
     setCheckedConnection(!checkedConnection); // триггерим перерендер приложения
   };
@@ -45,7 +51,9 @@ function AppContent() {
 
   if (!netInfo.isConnected) {
     return (
-      <View style={styles.noConnection}>
+      <View
+        style={[styles.noConnection, { backgroundColor: colors.background }]}
+      >
         <Text>Нет соединения</Text>
         <Button title="Попробовать еще раз" onPress={handleRetry} />
       </View>
@@ -54,7 +62,16 @@ function AppContent() {
     return (
       <Provider store={store}>
         <NavigationContainer theme={isDarkTheme ? DarkTheme : LightTheme}>
-          <Tab.Navigator>
+          <Tab.Navigator
+            screenOptions={{
+              tabBarLabelStyle: {
+                fontSize: labelSize,
+              },
+              tabBarStyle: {
+                paddingBottom: 2,
+              },
+            }}
+          >
             <Tab.Screen
               name="Characters"
               component={AboutStack}
