@@ -1,9 +1,18 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Alert, Text, View, StyleSheet, Image, Platform } from "react-native";
+import {
+  Alert,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { Loading } from "../components/Loading";
 import { useTheme } from "@react-navigation/native";
 import { useWindowDimensions } from "react-native";
+import { fetchCharacterData } from "../src/service/fetchCharacter";
 
 export default function CharacterScreen({ route, navigation }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,24 +43,26 @@ export default function CharacterScreen({ route, navigation }) {
     navigation.setOptions({
       title,
     });
-    axios
-      .get("https://rickandmortyapi.com/api/character/" + id)
-      .then(async ({ data }) => {
-        setData(data);
 
-        if (data.episode.length > 0) {
-          const episodeResponse = await axios.get(data.episode[0]);
-          setFirstEpisodeName(episodeResponse.data.name);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const { characterData, firstEpisodeName } = await fetchCharacterData(
+          id
+        );
+        if (characterData) {
+          setData(characterData);
+          setFirstEpisodeName(firstEpisodeName);
         } else {
-          setFirstEpisodeName("Unknown episode");
+          Alert.alert("Ошибка", "Не удалось найти персонажа");
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         Alert.alert("Ошибка", "Не удалось получить персонажа");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
   }, []);
 
   if (isLoading) {
@@ -59,8 +70,8 @@ export default function CharacterScreen({ route, navigation }) {
   }
 
   return (
-    <View
-      style={[
+    <ScrollView
+      contentContainerStyle={[
         styles.container,
         {
           flexDirection: flexDirection,
@@ -146,13 +157,13 @@ export default function CharacterScreen({ route, navigation }) {
           </Text>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingTop: Platform.OS === "android" ? 25 : 0,
     alignItems: "flex-start",
   },

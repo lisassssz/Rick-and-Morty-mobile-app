@@ -10,6 +10,8 @@ import {
   Text,
   RefreshControl,
   TouchableOpacity,
+  Modal,
+  Button,
 } from "react-native";
 
 import CharacterCard from "../components/CharacterCard";
@@ -18,6 +20,7 @@ import { fetchChatacters } from "../src/service/fetchCharacters";
 import { Loading } from "../components/Loading";
 import { useTheme } from "@react-navigation/native";
 import { useWindowDimensions } from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,8 +32,9 @@ export default function HomeScreen({ navigation }) {
   const { colors } = useTheme();
   const windowWidth = useWindowDimensions().width;
 
-  //для фильтров
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([]); //для фильтров
+  const [isConnected, setIsConnected] = useState(true); // состояние сети
+  const [modalVisible, setModalVisible] = useState(false);
 
   // адаптивные размеры
   const isSmallScreen = windowWidth < 768;
@@ -45,16 +49,24 @@ export default function HomeScreen({ navigation }) {
     { key: "5", value: "Alien" },
   ];
 
+  // проверка подключения к интернету
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsConnected(state.isConnected);
+    });
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     const initialFunction = async () => {
       setIsLoading(true);
-      let items = await fetchChatacters(currentPage);
+      let items = await fetchChatacters(currentPage, isConnected);
       setItems(items);
       setHasMorePages(items.length > 0); // обновляем статус наличия страниц
       setIsLoading(false);
     };
     initialFunction();
-  }, []);
+  }, [isConnected]);
 
   useEffect(() => {
     applyFilters();
@@ -75,9 +87,15 @@ export default function HomeScreen({ navigation }) {
 
   const fetchMore = async () => {
     if (isExtraLoading || !hasMorePages || filteredItems.length === 0) return;
+
+    if (!isConnected) {
+      setModalVisible(true);
+      return;
+    }
+
     setIsExtraLoading(true);
     const nextPage = currentPage + 1;
-    let charactersList = await fetchChatacters(nextPage);
+    let charactersList = await fetchChatacters(nextPage, isConnected);
     setItems([...items, ...charactersList]);
     setCurrentPage(nextPage);
     setHasMorePages(charactersList.length > 0); // обновляем статус наличия страниц
@@ -90,6 +108,27 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>
+              Пожалуйста, проверьте подключение к интернету и повторите попытку
+            </Text>
+            <Button
+              title="Попробовать еще раз"
+              onPress={() => {
+                setModalVisible(false);
+                fetchMore();
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
       <View style={{ marginHorizontal: marginHorizontal }}>
         <MultipleSelectList
           setSelected={(val) => setSelected(val)}
@@ -153,5 +192,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: Platform.OS === "android" ? 25 : 0,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 18,
   },
 });

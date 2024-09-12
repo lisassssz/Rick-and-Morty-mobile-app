@@ -1,7 +1,14 @@
 import axios from "axios";
 import { Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const fetchChatacters = async (page) => {
+const CHARACTER_LIMIT = 20; // ограничение на количество сохраненных персонажей
+
+export const fetchChatacters = async (page, isConnected) => {
+  if (!isConnected) {
+    return await getCharactersFromLocal();
+  }
+
   try {
     let response = await axios.get(
       `https://rickandmortyapi.com/api/character?page=${page}`
@@ -21,10 +28,41 @@ export const fetchChatacters = async (page) => {
       })
     );
 
+    // сохраняем последних 20 персонажей
+    await saveCharactersToLocal(characters);
+
     return characters;
   } catch (error) {
     console.error("Error fetching characters: ", error);
     Alert.alert("Ошибка", "Не удалось получить персонажей");
+    return [];
+  }
+};
+
+const saveCharactersToLocal = async (newCharacters) => {
+  try {
+    const storedCharacters = await getCharactersFromLocal();
+    const updatedCharacters = [...newCharacters, ...storedCharacters];
+
+    const limitedCharacters = updatedCharacters.slice(0, CHARACTER_LIMIT);
+
+    await AsyncStorage.setItem(
+      "rickAndMortyCharacters",
+      JSON.stringify(limitedCharacters)
+    );
+  } catch (error) {
+    console.log("Error saving characters to local storage", error);
+  }
+};
+
+const getCharactersFromLocal = async () => {
+  try {
+    const storedCharacters = await AsyncStorage.getItem(
+      "rickAndMortyCharacters"
+    );
+    return storedCharacters ? JSON.parse(storedCharacters) : [];
+  } catch (error) {
+    console.log("Error getting characters from local storage", error);
     return [];
   }
 };

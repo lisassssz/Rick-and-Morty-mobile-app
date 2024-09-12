@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  TouchableOpacity,
-} from "react-native";
+import { Text, StyleSheet, Platform, TouchableOpacity } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import { useTheme } from "@react-navigation/native";
 import { useSelector, useDispatch } from "react-redux";

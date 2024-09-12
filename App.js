@@ -3,12 +3,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SettingsScreen from "./screens/SettingsScreen";
 import Feather from "@expo/vector-icons/Feather";
 import { AboutStack } from "./AppStack";
-import { useNetInfo } from "@react-native-community/netinfo";
-import { Button, Text, View, StyleSheet, Alert } from "react-native";
-import { useEffect, useState } from "react";
+import { StyleSheet, Alert } from "react-native";
+import { useEffect } from "react";
 import { DarkTheme } from "./themes";
 import { LightTheme } from "./themes"; //для проверки светлой темы
-import { useTheme } from "@react-navigation/native";
 import { store } from "./app/store";
 import { Provider, useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -19,9 +17,6 @@ import { useWindowDimensions } from "react-native";
 const Tab = createBottomTabNavigator();
 
 function AppContent() {
-  const netInfo = useNetInfo();
-  const [checkedConnection, setCheckedConnection] = useState(false);
-  const { colors } = useTheme();
   const isDarkTheme = useSelector((state) => state.theme.isDarkTheme);
   const dispatch = useDispatch();
   const windowWidth = useWindowDimensions().width;
@@ -29,10 +24,7 @@ function AppContent() {
   // адаптивные размеры
   const isSmallScreen = windowWidth < 768;
   const labelSize = isSmallScreen ? 12 : 16;
-
-  const handleRetry = () => {
-    setCheckedConnection(!checkedConnection); // триггерим перерендер приложения
-  };
+  const headerTextSize = isSmallScreen ? 22 : 28;
 
   useEffect(() => {
     const getData = async () => {
@@ -49,53 +41,43 @@ function AppContent() {
     getData();
   }, [dispatch]); // устанавливаем тему при запуске
 
-  if (!netInfo.isConnected) {
-    return (
-      <View
-        style={[styles.noConnection, { backgroundColor: colors.background }]}
-      >
-        <Text>Нет соединения</Text>
-        <Button title="Попробовать еще раз" onPress={handleRetry} />
-      </View>
-    );
-  } else {
-    return (
-      <Provider store={store}>
-        <NavigationContainer theme={isDarkTheme ? DarkTheme : LightTheme}>
-          <Tab.Navigator
-            screenOptions={{
-              tabBarLabelStyle: {
-                fontSize: labelSize,
-              },
-              tabBarStyle: {
-                paddingBottom: 2,
-              },
+  return (
+    <Provider store={store}>
+      <NavigationContainer theme={isDarkTheme ? DarkTheme : LightTheme}>
+        <Tab.Navigator
+          screenOptions={{
+            tabBarLabelStyle: {
+              fontSize: labelSize,
+            },
+            tabBarStyle: {
+              paddingBottom: 2,
+            },
+            headerTitleStyle: { fontSize: headerTextSize },
+          }}
+        >
+          <Tab.Screen
+            name="Characters"
+            component={AboutStack}
+            options={{
+              headerShown: false,
+              tabBarIcon: ({ color }) => (
+                <Feather name="list" size={24} color={color} />
+              ),
             }}
-          >
-            <Tab.Screen
-              name="Characters"
-              component={AboutStack}
-              options={{
-                headerShown: false,
-                tabBarIcon: ({ color }) => (
-                  <Feather name="list" size={24} color={color} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Settings"
-              component={SettingsScreen}
-              options={{
-                tabBarIcon: ({ color }) => (
-                  <Feather name="settings" size={24} color={color} />
-                ),
-              }}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>
-      </Provider>
-    );
-  }
+          />
+          <Tab.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              tabBarIcon: ({ color }) => (
+                <Feather name="settings" size={24} color={color} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </Provider>
+  );
 }
 
 export default function App() {
