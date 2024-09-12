@@ -3,7 +3,6 @@ import {
   StyleSheet,
   SafeAreaView,
   Platform,
-  Alert,
   FlatList,
   ActivityIndicator,
   View,
@@ -21,6 +20,7 @@ import { Loading } from "../components/Loading";
 import { useTheme } from "@react-navigation/native";
 import { useWindowDimensions } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +40,9 @@ export default function HomeScreen({ navigation }) {
   const isSmallScreen = windowWidth < 768;
   const marginHorizontal = isSmallScreen ? 16 : 60;
   const fontSize = isSmallScreen ? 16 : 22;
+  const iconSize = isSmallScreen ? 24 : 30;
+  const filterSize = isSmallScreen ? 14 : 20;
+  const checkBoxSize = isSmallScreen ? 20 : 26;
 
   const data = [
     { key: "1", value: "Alive" },
@@ -117,10 +120,10 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={styles.modalText}>
-              Пожалуйста, проверьте подключение к интернету и повторите попытку
+              Please check your internet connection and try again
             </Text>
             <Button
-              title="Попробовать еще раз"
+              title="Try again"
               onPress={() => {
                 setModalVisible(false);
                 fetchMore();
@@ -137,7 +140,23 @@ export default function HomeScreen({ navigation }) {
           label="Filters"
           inputStyles={{ color: colors.text, fontSize: fontSize }}
           dropdownTextStyles={{ color: colors.text, fontSize: fontSize }}
-          styleTextTag={{ fontSize: 22 }}
+          arrowicon={
+            <MaterialIcons
+              name="keyboard-arrow-down"
+              size={iconSize}
+              color={colors.text}
+            />
+          }
+          closeicon={
+            <MaterialIcons name="close" size={iconSize} color={colors.text} />
+          }
+          badgeTextStyles={{ fontSize: filterSize }}
+          labelStyles={{ fontSize: filterSize, color: colors.text }}
+          checkBoxStyles={{
+            width: checkBoxSize,
+            height: checkBoxSize,
+            borderRadius: 5,
+          }}
         />
       </View>
       <FlatList
@@ -145,7 +164,7 @@ export default function HomeScreen({ navigation }) {
           <RefreshControl refreshing={isLoading} onRefresh={fetchChatacters} />
         }
         data={filteredItems}
-        keyExtractor={(item) => Math.random().toString(36).substring(2)}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>

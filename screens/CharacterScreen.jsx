@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -54,10 +53,10 @@ export default function CharacterScreen({ route, navigation }) {
           setData(characterData);
           setFirstEpisodeName(firstEpisodeName);
         } else {
-          Alert.alert("Ошибка", "Не удалось найти персонажа");
+          Alert.alert("Error", "Could not find character");
         }
       } catch (err) {
-        Alert.alert("Ошибка", "Не удалось получить персонажа");
+        Alert.alert("Error", "Could not get character");
       }
       setIsLoading(false);
     };

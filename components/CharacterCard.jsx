@@ -63,9 +63,8 @@ export default function CharacterCard({
             ></View>
             <Text
               style={[
-                { color: colors.text },
                 styles.status,
-                { fontSize: extraTextFontSize },
+                { fontSize: extraTextFontSize, color: colors.text },
               ]}
             >
               {status} - {species}
@@ -117,7 +116,6 @@ const styles = StyleSheet.create({
   textBlock: {
     width: "60%",
     paddingHorizontal: 12,
-    // paddingVertical: 10,
     gap: 8,
   },
   extraText: {

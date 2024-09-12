@@ -34,8 +34,8 @@ function AppContent() {
           dispatch(setTheme(JSON.parse(savedTheme)));
         }
       } catch (e) {
-        Alert.alert("Ошибка", "Не удалось установить сохраненную тему");
-        console.error("Не удалось загрузить тему из AsyncStorage", error);
+        Alert.alert("Error", "Failed to set saved theme");
+        console.error("Failed to get theme from AsyncStorage", error);
       }
     };
     getData();

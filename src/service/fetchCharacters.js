@@ -34,7 +34,7 @@ export const fetchChatacters = async (page, isConnected) => {
     return characters;
   } catch (error) {
     console.error("Error fetching characters: ", error);
-    Alert.alert("Ошибка", "Не удалось получить персонажей");
+    Alert.alert("Error", "Failed to get characters");
     return [];
   }
 };

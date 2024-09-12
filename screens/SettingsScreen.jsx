@@ -22,9 +22,7 @@ export default function SettingsScreen() {
       onPress={() => dispatch(toggleTheme())}
     >
       <Text style={{ color: colors.text, fontSize: textFontSize }}>
-        {isDarkTheme
-          ? "Переключить на дневную тему"
-          : "Переключить на ночную тему"}
+        {isDarkTheme ? "Switch to day theme" : "Switch to night theme"}
       </Text>
       <Feather
         name={isDarkTheme ? "sun" : "moon"}
